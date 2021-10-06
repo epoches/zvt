@@ -5,7 +5,7 @@ import time
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from zvt import init_log, zvt_config
-from zvt.domain import Stock, StockTradeDay, Stock1dHfqKdata,Stock1monHfqKdata
+from zvt.domain import Stock, StockTradeDay, Stock1dHfqKdata
 from zvt.informer.informer import EmailInformer
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
 
-#@sched.scheduled_job('cron', hour=6, minute=0)
+@sched.scheduled_job('cron', hour=6, minute=0)
 def record_stock():
     while True:
         email_action = EmailInformer()
@@ -31,13 +31,12 @@ def record_stock():
             time.sleep(60 * 5)
 
 
-#@sched.scheduled_job('cron', hour=15, minute=20)
+@sched.scheduled_job('cron', hour=15, minute=20)
 def record_kdata():
     while True:
         email_action = EmailInformer()
 
         try:
-            Stock1monHfqKdata.record_data(provider='joinquant', sleeping_time=0)
             # 日线前复权和后复权数据
             # Stock1dKdata.record_data(provider='joinquant', sleeping_time=0)
             Stock1dHfqKdata.record_data(provider='joinquant', sleeping_time=0, day_data=True)
@@ -58,6 +57,6 @@ if __name__ == '__main__':
 
     record_kdata()
 
-    #sched.start()
+    sched.start()
 
-    #sched._thread.join()
+    sched._thread.join()

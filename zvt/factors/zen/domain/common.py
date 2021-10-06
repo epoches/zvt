@@ -77,6 +77,10 @@ class ZenFactorCommon(Mixin):
     bi_zhongshu = Column(String(length=512))
     bi_zhongshu_change = Column(Float)
 
+    # 从前往后，合并相邻的有重叠的笔中枢
+    merge_zhongshu = Column(String(length=512))
+    merge_change = Column(Float)
+
 
 # the __all__ is generated
 __all__ = ['ZenFactorCommon']

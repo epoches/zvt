@@ -36,11 +36,11 @@ def test_ma():
 
 
 def test_macd():
-    factor = TechnicalFactor(provider='joinquant', codes=['000553'], start_timestamp='2018-05-01',
-                             end_timestamp='2021-09-03', level=IntervalLevel.LEVEL_1MON, computing_window=None,
-                             transformer=MacdTransformer(), adjust_type='hfq')
+    factor = TechnicalFactor(provider='joinquant', codes=['000338'], start_timestamp='2019-01-01',
+                             end_timestamp='2019-06-10', level=IntervalLevel.LEVEL_1DAY, computing_window=None,
+                             transformer=MacdTransformer(), adjust_type='qfq')
 
-    #print(factor.factor_df.tail())
+    print(factor.factor_df.tail())
 
     # compare with east money manually
     diff = factor.factor_df['diff']

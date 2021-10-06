@@ -38,7 +38,7 @@ class MyBullTrader(StockTrader):
 
 if __name__ == '__main__':
     # single stock with cross ma factor
-    MyBullTrader(codes=['000338'], level=IntervalLevel.LEVEL_1DAY, start_timestamp='2020-01-01',
+    MyBullTrader(codes=['000338'], level=IntervalLevel.LEVEL_1DAY, start_timestamp='2019-01-01',
                  end_timestamp='2020-06-30', trader_name='000338_ma_trader').run()
 
     # single stock with bull factor

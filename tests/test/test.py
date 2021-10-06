@@ -24,11 +24,11 @@ init_test_context()
 from zvt.factors.technical_factor import TechnicalFactor
 
 def test():
-    #auth('13956782345','Yjbir=1977')
+    auth('13956782345','Yjbir=1977')
 
     # 查询当日剩余可调用数据条数
-    # count = get_query_count()
-    # print(count)
+    count = get_query_count()
+    print(count)
     #获取MACD数据
     # factor = TechnicalFactor(provider='joinquant', codes=['000338'], start_timestamp='2021-05-01',
     #                          end_timestamp='2021-06-30', level=IntervalLevel.LEVEL_1DAY, computing_window=None,

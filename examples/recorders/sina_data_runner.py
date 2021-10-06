@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 sched = BackgroundScheduler()
 
 
-#@sched.scheduled_job('cron', hour=15, minute=30, day_of_week=3)
+@sched.scheduled_job('cron', hour=15, minute=30, day_of_week=3)
 def record_block():
     while True:
         email_action = EmailInformer()
 
         try:
-            Block.record_data(provider='sina', sleeping_time=1)
-            BlockStock.record_data(provider='sina', sleeping_time=1)
+            Block.record_data(provider='sina')
+            BlockStock.record_data(provider='sina')
 
             email_action.send_message(zvt_config['email_username'], 'sina block finished', '')
             break
@@ -32,14 +32,14 @@ def record_block():
             time.sleep(60)
 
 
-#@sched.scheduled_job('cron', hour=15, minute=30)
+@sched.scheduled_job('cron', hour=15, minute=30)
 def record_money_flow():
     while True:
         email_action = EmailInformer()
 
         try:
-            BlockMoneyFlow.record_data(provider='sina', sleeping_time=1)
-            Etf1dKdata.record_data(provider='sina', sleeping_time=1)
+            BlockMoneyFlow.record_data(provider='sina')
+
             email_action.send_message(zvt_config['email_username'], 'sina money flow finished', '')
             break
         except Exception as e:
@@ -53,9 +53,9 @@ def record_money_flow():
 if __name__ == '__main__':
     init_log('sina_data_runner.log')
 
-    #record_block()
+    record_block()
     record_money_flow()
 
-    #sched.start()
+    sched.start()
 
-    #sched._thread.join()
+    sched._thread.join()

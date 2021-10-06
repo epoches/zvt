@@ -64,18 +64,7 @@ class MacdDayTrader(StockTrader):
 
     def long_position_control(self):
         # 多头仓位管理
-        positions = self.get_current_positions()
-
-        position_pct = 1.0
-        if not positions:
-            # 没有仓位，买2成
-            position_pct = 0.2
-        elif len(positions) <= 2:
-            # 小于2个持仓，买5成
-            position_pct = 0.5
-
-        # 买完
-        return position_pct
+        return super().long_position_control()
 
     def short_position_control(self):
         # 空头仓位管理
@@ -88,9 +77,7 @@ class MacdDayTrader(StockTrader):
 
 
 if __name__ == '__main__':
-    trader = MacdDayTrader(codes='600016',start_timestamp='2021-03-01', end_timestamp='2021-04-01')
-    trader.long_position_control()
-    trader.short_position_control()
+    trader = MacdDayTrader(start_timestamp='2019-01-01', end_timestamp='2020-01-01')
     trader.run()
     # f = VolFactor(start_timestamp='2020-01-01', end_timestamp='2020-04-01')
     # print(f.result_df)

@@ -112,7 +112,9 @@ class VolumeUpMaFactor(TechnicalFactor):
                  only_load_factor: bool = False,
                  adjust_type: Union[AdjustType, str] = None,
                  windows=None,
-                 vol_windows=None) -> None:
+                 vol_windows=None,
+                 turnover_threshold=300000000,
+                 over_mode='and') -> None:
         if not windows:
             windows = [250]
         if not vol_windows:
@@ -120,6 +122,8 @@ class VolumeUpMaFactor(TechnicalFactor):
 
         self.windows = windows
         self.vol_windows = vol_windows
+        self.turnover_threshold = turnover_threshold
+        self.over_mode = over_mode
 
         columns: List = ['id', 'entity_id', 'timestamp', 'level', 'open', 'close', 'high', 'low', 'volume',
                          'turnover']
@@ -139,8 +143,10 @@ class VolumeUpMaFactor(TechnicalFactor):
         filter_se = (self.factor_df['close'] > self.factor_df[cols[0]]) & (
                 self.factor_df['close'] < 1.1 * self.factor_df[cols[0]])
         for col in cols[1:]:
-            filter_se = filter_se & (self.factor_df['close'] > self.factor_df[col])
-
+            if self.over_mode == 'and':
+                filter_se = filter_se & (self.factor_df['close'] > self.factor_df[col])
+            else:
+                filter_se = filter_se | (self.factor_df['close'] > self.factor_df[col])
         # 放量
         if self.vol_windows:
             vol_cols = [f'vol_ma{window}' for window in self.vol_windows]
@@ -148,8 +154,8 @@ class VolumeUpMaFactor(TechnicalFactor):
             for col in vol_cols[1:]:
                 filter_se = filter_se & (self.factor_df['volume'] > 2 * self.factor_df[col])
 
-        # 成交额大于1亿️
-        filter_se = filter_se & (self.factor_df['turnover'] > 100000000)
+        # 成交额过滤
+        filter_se = filter_se & (self.factor_df['turnover'] > self.turnover_threshold)
 
         print(self.factor_df[filter_se])
         self.result_df = filter_se.to_frame(name='score')
@@ -165,8 +171,7 @@ class CrossMaVolumeFactor(VolumeUpMaFactor):
             filter_se = filter_se & (self.factor_df[current_col] > self.factor_df[col])
             current_col = col
 
-        # 成交额大于5亿️
-        filter_se = filter_se & (self.factor_df['turnover'] > 500000000)
+        filter_se = filter_se & (self.factor_df['turnover'] > self.turnover_threshold)
 
         print(self.factor_df[filter_se])
         self.result_df = filter_se.to_frame(name='score')

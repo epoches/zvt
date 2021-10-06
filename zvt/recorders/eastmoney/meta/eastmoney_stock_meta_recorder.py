@@ -10,22 +10,25 @@ from zvt.utils.time_utils import to_pd_timestamp
 from zvt.utils.utils import to_float, pct_to_float
 
 
-class EastmoneyChinaStockListRecorder(ExchangeStockMetaRecorder):
+class EastmoneyStockRecorder(ExchangeStockMetaRecorder):
     data_schema = Stock
     provider = 'eastmoney'
 
 
-class EastmoneyChinaStockDetailRecorder(Recorder):
+class EastmoneyStockDetailRecorder(Recorder):
     provider = 'eastmoney'
     data_schema = StockDetail
 
-    def __init__(self, force_update=False, sleeping_time=5, codes=None) -> None:
+    def __init__(self, force_update=False, sleeping_time=5, code=None, codes=None) -> None:
         super().__init__(force_update, sleeping_time)
 
         # get list at first
-        EastmoneyChinaStockListRecorder().run()
+        EastmoneyStockRecorder().run()
 
-        self.codes = codes
+        if codes is None and code is not None:
+            self.codes = [code]
+        else:
+            self.codes = codes
         filters = None
         if not self.force_update:
             filters = [StockDetail.profile.is_(None)]
@@ -92,8 +95,8 @@ class EastmoneyChinaStockDetailRecorder(Recorder):
 if __name__ == '__main__':
     # init_log('china_stock_meta.log')
 
-    recorder = EastmoneyChinaStockListRecorder()
+    recorder = EastmoneyStockRecorder()
     recorder.run()
     StockDetail.record_data(codes=['000338', '000777'], provider='eastmoney')
 # the __all__ is generated
-__all__ = ['EastmoneyChinaStockListRecorder', 'EastmoneyChinaStockDetailRecorder']
+__all__ = ['EastmoneyStockRecorder', 'EastmoneyStockDetailRecorder']

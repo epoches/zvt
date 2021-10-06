@@ -10,20 +10,20 @@ from zvt.informer.informer import EmailInformer
 
 logger = logging.getLogger(__name__)
 
-#sched = BackgroundScheduler()
+sched = BackgroundScheduler()
 
 
 # 自行更改定定时运行时间
-#@sched.scheduled_job('cron', hour=1, minute=00, day_of_week=2)
+@sched.scheduled_job('cron', hour=1, minute=00, day_of_week=2)
 def run():
     while True:
         email_action = EmailInformer()
 
         try:
-            StockInstitutionalInvestorHolder.record_data(provider='em', sleeping_time=0)
-            StockTopTenFreeHolder.record_data(provider='em', sleeping_time=0)
-            StockActorSummary.record_data(provider='em', sleeping_time=0)
-            Etf1dKdata.record_data(provider='em', sleeping_time=0)
+            StockInstitutionalInvestorHolder.record_data(provider='em')
+            StockTopTenFreeHolder.record_data(provider='em')
+            StockActorSummary.record_data(provider='em')
+
             email_action.send_message(zvt_config['email_username'], 'em runner finished', '')
             break
         except Exception as e:
@@ -39,6 +39,6 @@ if __name__ == '__main__':
 
     run()
 
-    #sched.start()
+    sched.start()
 
-    #sched._thread.join()
+    sched._thread.join()

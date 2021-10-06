@@ -12,7 +12,6 @@ from zvt.trader.trader import StockTrader
 class MultipleLevelTrader(StockTrader):
     def init_selectors(self, entity_ids, entity_schema, exchanges, codes, start_timestamp, end_timestamp,
                        adjust_type=None):
-
         # 周线策略
         week_selector = TargetSelector(entity_ids=entity_ids, entity_schema=entity_schema, exchanges=exchanges,
                                        codes=codes, start_timestamp=start_timestamp, end_timestamp=end_timestamp,
@@ -44,5 +43,5 @@ class MultipleLevelTrader(StockTrader):
 
 
 if __name__ == '__main__':
-    trader = MultipleLevelTrader(start_timestamp='2019-01-01', end_timestamp='2020-01-01')
+    trader = MultipleLevelTrader(start_timestamp='2021-07-01', end_timestamp='2021-09-01')
     trader.run()

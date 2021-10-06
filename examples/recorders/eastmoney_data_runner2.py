@@ -10,12 +10,12 @@ from zvt.informer.informer import EmailInformer
 
 logger = logging.getLogger(__name__)
 
-#sched = BackgroundScheduler()
+sched = BackgroundScheduler()
 
 
 # 自行更改定定时运行时间
 # 这些数据都是些低频分散的数据，每天更新一次即可
-#@sched.scheduled_job('cron', hour=2, minute=00, day_of_week=4)
+@sched.scheduled_job('cron', hour=2, minute=00, day_of_week=4)
 def run():
     while True:
         email_action = EmailInformer()
@@ -42,6 +42,6 @@ if __name__ == '__main__':
 
     run()
 
-    #sched.start()
+    sched.start()
 
-    #sched._thread.join()
+    sched._thread.join()

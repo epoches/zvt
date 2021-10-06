@@ -16,9 +16,9 @@ from zvt.contract.drawer import Rect
 from zvt.contract.factor import Accumulator
 from zvt.contract.factor import Transformer
 from zvt.contract.normal_data import NormalData
-from zvt.domain import Stock
-from zvt.factors.technical_factor import TechnicalFactor
+from zvt.domain import Stock, Stock1dHfqKdata
 from zvt.factors.algorithm import intersect
+from zvt.factors.technical_factor import TechnicalFactor
 from zvt.utils import pd_is_not_null, to_string
 from zvt.utils import to_time_str
 from zvt.utils.time_utils import TIME_FORMAT_ISO8601
@@ -274,6 +274,9 @@ class ZenState(Bean):
         self.pre_bi = state.get('pre_bi')
         self.pre_duan = state.get('pre_duan')
 
+        # 目前的merge_zhongshu
+        self.merge_zhongshu = state.get('merge_zhongshu')
+
 
 def handle_zhongshu(points: list, acc_df, end_index, zhongshu_col='zhongshu', zhongshu_change_col='zhongshu_change'):
     zhongshu = None
@@ -429,7 +432,8 @@ class ZenAccumulator(Accumulator):
             acc_df = acc_df.reset_index(drop=True)
 
             zen_state = ZenState(dict(fenxing_list=[], direction=None, can_fenxing=None, can_fenxing_index=None,
-                                      opposite_count=0, current_duan_state='yi', duans=[], pre_bi=None, pre_duan=None))
+                                      opposite_count=0, current_duan_state='yi', duans=[], pre_bi=None, pre_duan=None,
+                                      merge_zhongshu=None))
 
             zen_state.fenxing_list: List[Fenxing] = []
 
@@ -452,6 +456,7 @@ class ZenAccumulator(Accumulator):
         pre_index = start_index - 1
 
         tmp_direction = zen_state.direction
+        current_merge_zhongshu = zen_state.merge_zhongshu
 
         current_zhongshu = None
         current_zhongshu_change = None
@@ -565,12 +570,35 @@ class ZenAccumulator(Accumulator):
                         # 记录用于计算笔中枢的笔
                         zen_state.bis.append((acc_df.loc[zen_state.can_fenxing_index, 'timestamp'], bi_value))
 
-                        # 计算笔中枢
+                        # 计算笔中枢，当下来说这个 中枢 是确定的，并且是不可变的
+                        # 但标记的点为 过去，注意在回测时最近的一个中枢可能用到未来函数，前一个才是 已知的
+                        # 所以记了一个 current_zhongshu_y0 current_zhongshu_y1 这个是可直接使用的
+                        end_index = zen_state.can_fenxing_index
                         zen_state.bis, current_zhongshu, current_zhongshu_change = handle_zhongshu(points=zen_state.bis,
                                                                                                    acc_df=acc_df,
-                                                                                                   end_index=zen_state.can_fenxing_index,
+                                                                                                   end_index=end_index,
                                                                                                    zhongshu_col='bi_zhongshu',
                                                                                                    zhongshu_change_col='bi_zhongshu_change')
+
+                        if not current_merge_zhongshu:
+                            current_merge_zhongshu = current_zhongshu
+                        else:
+                            if current_zhongshu:
+                                range_a = (current_merge_zhongshu.y0, current_merge_zhongshu.y1)
+                                range_b = (current_zhongshu.y0, current_zhongshu.y1)
+                                intersect_range = intersect(range_a, range_b)
+                                if intersect_range:
+                                    y0 = intersect_range[0]
+                                    y1 = intersect_range[1]
+                                    current_merge_zhongshu = Rect(x0=current_merge_zhongshu.x0, x1=current_zhongshu.x1,
+                                                                  y0=y0, y1=y1)
+                                    merge_zhongshu_change = abs(y0 - y1) / y0
+                                else:
+                                    current_merge_zhongshu = current_zhongshu
+                                    merge_zhongshu_change = current_zhongshu_change
+
+                                acc_df.loc[end_index, 'merge_zhongshu'] = current_merge_zhongshu
+                                acc_df.loc[end_index, 'merge_zhongshu_change'] = merge_zhongshu_change
 
                         zen_state.pre_bi = (zen_state.can_fenxing_index, bi_value)
 
@@ -691,7 +719,8 @@ class ZenFactor(TechnicalFactor):
         return {
             'zhongshu': decode_rect,
             'current_zhongshu': decode_rect,
-            'bi_zhongshu': decode_rect
+            'bi_zhongshu': decode_rect,
+            'merge_zhongshu': decode_rect
         }
 
     def factor_encoder(self):
@@ -703,8 +732,8 @@ class ZenFactor(TechnicalFactor):
         return [bi_value, duan_value]
 
     def drawer_rects(self) -> List[Rect]:
-        df1 = self.factor_df[['bi_zhongshu']].dropna()
-        return df1['bi_zhongshu'].tolist()
+        df1 = self.factor_df[['merge_zhongshu']].dropna()
+        return df1['merge_zhongshu'].tolist()
 
     def drawer_sub_df_list(self) -> Optional[List[pd.DataFrame]]:
         # bi_slope = self.factor_df[['bi_slope']].dropna()
@@ -888,13 +917,13 @@ class ShowFactor(ZenFactor):
 
 
 if __name__ == '__main__':
-    from zvt.factors.zen.domain import Stock1dZenFactor
-    from zvt.domain import Stock1dHfqKdata
-
-    Stock1dHfqKdata.record_data(codes=['000338','601318'])
-    zen = ZenFactor(level='1d', need_persist=True, clear_state=False, codes=['000338','601318'])
-    zen.draw(show=True)
+    codes = ['601669']
+    # Stock1dHfqKdata.record_data(codes=codes)
+    ZenFactor(need_persist=True, codes=codes).draw(show=True)
 
 # the __all__ is generated
-__all__ = ['Direction', 'Fenxing', 'KState', 'DuanState', 'fenxing_power', 'a_include_b', 'is_including', 'get_direction', 'is_up', 'is_down', 'handle_first_fenxing', 'handle_duan', 'handle_including', 'FactorStateEncoder', 'decode_rect', 'decode_fenxing',
-           'get_zen_factor_schema', 'ZenState', 'handle_zhongshu', 'ZenAccumulator', 'ZenFactor', 'order_type_flag', 'TrendingFactor', 'ShakingFactor']
+__all__ = ['Direction', 'Fenxing', 'KState', 'DuanState', 'fenxing_power', 'a_include_b', 'is_including',
+           'get_direction', 'is_up', 'is_down', 'handle_first_fenxing', 'handle_duan', 'handle_including',
+           'FactorStateEncoder', 'decode_rect', 'decode_fenxing',
+           'get_zen_factor_schema', 'ZenState', 'handle_zhongshu', 'ZenAccumulator', 'ZenFactor', 'order_type_flag',
+           'TrendingFactor', 'ShakingFactor']
