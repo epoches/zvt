@@ -9,7 +9,7 @@ from examples.factors.fundamental_selector import FundamentalSelector
 from examples.reports import get_subscriber_emails, stocks_with_info
 from zvt import init_log, zvt_config
 from zvt.contract.api import get_entities
-from zvt.domain import Stock
+from zvt.domain import Stock,StockTradeDay,FinanceFactor,BalanceSheet
 from zvt.factors.target_selector import TargetSelector
 from zvt.informer.informer import EmailInformer
 from zvt.utils.time_utils import now_pd_timestamp, to_time_str
@@ -27,13 +27,13 @@ def report_core_company():
         # email_action = EmailInformer()
 
         try:
-            # StockTradeDay.record_data(provider='joinquant')
-            # Stock.record_data(provider='joinquant')
-            # FinanceFactor.record_data(provider='eastmoney')
-            # BalanceSheet.record_data(provider='eastmoney')
+            StockTradeDay.record_data(provider='joinquant')
+            Stock.record_data(provider='joinquant')
+            FinanceFactor.record_data(provider='eastmoney')
+            BalanceSheet.record_data(provider='eastmoney')
 
             #target_date = to_time_str(now_pd_timestamp())
-            target_date = '2018-08-01'
+            target_date = '2019-08-01'
             my_selector: TargetSelector = FundamentalSelector(start_timestamp='2014-10-01', end_timestamp=target_date)
             my_selector.run()
 

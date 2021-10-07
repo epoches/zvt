@@ -9,7 +9,7 @@ import seaborn as sns
 sns.set_style('white')
 plt.rcParams['font.sans-serif']=['SimHei'] # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False # 用来正常显示负号
-codeid ='603225'
+codeid ='600745'
 starttime ='2011-10-5'
 endtime=now_pd_timestamp()
 Stock1dKdata.record_data(provider='joinquant', code=codeid)
@@ -41,11 +41,11 @@ dfvaluation['eps']=df['basic_eps']
 
 #获取历史最高价和最低价 ，确定五个相等间隔的市盈率
 #计算pb，每股净资产bps
-pettm = dfvaluation.iloc[0,11]
-if pettm<0:
-    pettm=0
-pettmmax = dfvaluation.loc[dfvaluation['pe_ttm'].idxmax(),'pe_ttm']
-pettmmin = dfvaluation.loc[dfvaluation['pe_ttm'].idxmin(),'pe_ttm']
+pe = dfvaluation.iloc[0,10]
+if pe<0:
+    pe=0
+pettmmax = dfvaluation.loc[dfvaluation['pe'].idxmax(),'pe']
+pettmmin = dfvaluation.loc[dfvaluation['pe'].idxmin(),'pe']
 pettmdiv = (pettmmax-pettmmin)/5
 pe1=pettmmin+pettmdiv
 if pe1<0:
