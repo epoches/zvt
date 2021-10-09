@@ -4,7 +4,6 @@ from typing import List, Tuple
 from zvt.contract import IntervalLevel
 from zvt.factors import TargetSelector, GoldCrossFactor
 from zvt.trader.trader import StockTrader
-from zvt.domain import Stock, Stock1dHfqKdata,StockValuation,Stock1dKdata,Stock1wkHfqKdata,Stock1dHfqKdata
 
 
 # 依赖数据
@@ -14,8 +13,6 @@ class MultipleLevelTrader(StockTrader):
     def init_selectors(self, entity_ids, entity_schema, exchanges, codes, start_timestamp, end_timestamp,
                        adjust_type=None):
         # 周线策略
-        #Stock1wkHfqKdata.record_data(provider='joinquant')
-        #Stock1dHfqKdata.record_data(provider='joinquant')
         week_selector = TargetSelector(entity_ids=entity_ids, entity_schema=entity_schema, exchanges=exchanges,
                                        codes=codes, start_timestamp=start_timestamp, end_timestamp=end_timestamp,
                                        long_threshold=0.7, level=IntervalLevel.LEVEL_1WEEK, provider='joinquant')
@@ -46,5 +43,5 @@ class MultipleLevelTrader(StockTrader):
 
 
 if __name__ == '__main__':
-    trader = MultipleLevelTrader(start_timestamp='2021-01-01', end_timestamp='2021-09-01')
+    trader = MultipleLevelTrader(start_timestamp='2019-01-01', end_timestamp='2020-01-01')
     trader.run()

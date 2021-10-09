@@ -41,5 +41,5 @@ if __name__ == '__main__':
     entity_id = 'stock_sh_600519'
     Stock1dKdata.record_data(entity_id=entity_id, provider='em')
     StockActorSummary.record_data(entity_id=entity_id, provider='em')
-    FollowIITrader(start_timestamp='2020-01-01', end_timestamp='2021-01-01', entity_ids=[entity_id],
+    FollowIITrader(start_timestamp='2002-01-01', end_timestamp='2021-01-01', entity_ids=[entity_id],
                    provider='em', adjust_type=AdjustType.qfq, profit_threshold=None).run()

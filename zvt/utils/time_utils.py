@@ -234,6 +234,13 @@ def split_time_interval(start, end, method=None, interval=30, freq='D'):
             start = next_date(interval_end, 1)
 
 
+def count_interval(start_date, end_date):
+    start_date = to_pd_timestamp(start_date)
+    end_date = to_pd_timestamp(end_date)
+    delta = end_date - start_date
+    return delta.days
+
+
 if __name__ == '__main__':
     print(date_and_time('2019-10-01', '10:00'))
 # the __all__ is generated

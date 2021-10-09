@@ -40,7 +40,7 @@ class ZenFactorCommon(Mixin):
 
     # 目前分型确定的方向
     current_direction = Column(String(length=16))
-    current_change= Column(Float)
+    current_change = Column(Float)
     current_interval = Column(Integer)
     current_slope = Column(Float)
     # 最近的一个笔中枢
@@ -48,6 +48,13 @@ class ZenFactorCommon(Mixin):
     current_zhongshu_y0 = Column(Float)
     current_zhongshu_y1 = Column(Float)
     current_zhongshu_change = Column(Float)
+
+    current_merge_zhongshu_y0 = Column(Float)
+    current_merge_zhongshu_y1 = Column(Float)
+    current_merge_zhongshu_change = Column(Float)
+    current_merge_zhongshu_level = Column(Integer)
+    current_merge_zhongshu_interval = Column(Integer)
+
     # 目前走势的临时方向 其跟direction的的关系 确定了下一个分型
     tmp_direction = Column(String(length=16))
     opposite_change = Column(Float)
@@ -79,7 +86,7 @@ class ZenFactorCommon(Mixin):
 
     # 从前往后，合并相邻的有重叠的笔中枢
     merge_zhongshu = Column(String(length=512))
-    merge_change = Column(Float)
+    merge_zhongshu_change = Column(Float)
 
 
 # the __all__ is generated
