@@ -277,7 +277,7 @@ class DataReader(Drawable):
 if __name__ == '__main__':
     from zvt.domain import Stock1dKdata, Stock
 
-    data_reader = DataReader(codes=['002572', '000338'], data_schema=Stock1dKdata, entity_schema=Stock,
+    data_reader = DataReader(codes=['002572', '000338'], data_schema=Stock1dKdata, entity_schema=Stock, entity_provider='eastmoney',
                              start_timestamp='2017-01-01',
                              end_timestamp='2019-06-10')
 

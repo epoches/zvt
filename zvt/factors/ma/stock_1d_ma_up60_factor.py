@@ -14,24 +14,21 @@ from zvt.factors.technical_factor import TechnicalFactor
 from zvt.utils.time_utils import now_pd_timestamp
 
 
-class TopBottomTransformer(Transformer):
+class MaUpTransformer(Transformer):
     def __init__(self, window=20) -> None:
         super().__init__()
         self.window = window
 
     def transform(self, input_df) -> pd.DataFrame:
-        top_df = input_df['high'].groupby(level=0).rolling(window=self.window, min_periods=self.window).max()
+        top_df = input_df['close'].groupby(level=0).rolling(window=self.window, min_periods=self.window).mean()
         top_df = top_df.reset_index(level=0, drop=True)
-        input_df['top'] = top_df
+        input_df['mean'] = top_df
 
-        bottom_df = input_df['high'].groupby(level=0).rolling(window=self.window, min_periods=self.window).min()
-        bottom_df = bottom_df.reset_index(level=0, drop=True)
-        input_df['bottom'] = bottom_df
 
         return input_df
 
 
-class TopBottomFactor(TechnicalFactor):
+class MaUpFactor(TechnicalFactor):
     def __init__(self, entity_schema: TradableEntity = Stock, provider: str = None, entity_provider: str = None,
                  entity_ids: List[str] = None, exchanges: List[str] = None, codes: List[str] = None,
                  start_timestamp: Union[str, pd.Timestamp] = None, end_timestamp: Union[str, pd.Timestamp] = None,
@@ -45,7 +42,7 @@ class TopBottomFactor(TechnicalFactor):
                  adjust_type: Union[AdjustType, str] = None, window=30) -> None:
         self.adjust_type = adjust_type
 
-        transformer = TopBottomTransformer(window=window)
+        transformer = MaUpTransformer(window=window)
 
         super().__init__(entity_schema, provider, entity_provider, entity_ids, exchanges, codes, start_timestamp,
                          end_timestamp, columns, filters, order, limit, level, category_field, time_field,
@@ -54,14 +51,18 @@ class TopBottomFactor(TechnicalFactor):
 
 
 if __name__ == '__main__':
-    factor = TopBottomFactor(codes=['000596'], start_timestamp='2021-01-01',
+    factor = MaUpFactor(codes=['601099'], start_timestamp='2021-01-01',
                              end_timestamp=now_pd_timestamp(),
-                             level=IntervalLevel.LEVEL_1DAY, window=120)
+                             level=IntervalLevel.LEVEL_1DAY, window=60)
     print(factor.factor_df)
 
-    data_reader1 = DataReader(codes=['601318'], data_schema=Stock1dKdata, entity_schema=Stock)
+    Stock1dKdata.record_data(code='601099', provider='joinquant',start_timestamp='2021-01-01',
+                             end_timestamp=now_pd_timestamp())
+    data_reader1 = Stock1dKdata.query_data(code='601099', provider='joinquant',start_timestamp='2021-01-01',
+                             end_timestamp=now_pd_timestamp())
 
-    drawer = Drawer(main_df=data_reader1.data_df, factor_df_list=[factor.factor_df[['top', 'bottom']]])
+
+    drawer = Drawer(main_df=data_reader1, factor_df_list=[factor.factor_df[['mean']]])
     drawer.draw_kline(show=True)
 # the __all__ is generated
-__all__ = ['TopBottomTransformer', 'TopBottomFactor']
+__all__ = ['MaUpTransformer', 'MaUpFactor']
