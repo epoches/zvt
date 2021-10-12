@@ -40,6 +40,8 @@ def report_core_company():
 
                 # add them to eastmoney
                 stocklist=''
+                for stock in stocks:
+                    stocklist = stocklist + stock.code + ','
                 try:
                     try:
                         eastmoneypy.del_group('core')
@@ -48,7 +50,6 @@ def report_core_company():
                     eastmoneypy.create_group('core')
                     for stock in stocks:
                         eastmoneypy.add_to_group(stock.code, group_name='core')
-                        stocklist = stocklist + stock +','
                 except Exception as e:
                     print(e)
                     # email_action.send_message(zvt_config['email_username'], f'report_core_company error',
@@ -58,7 +59,7 @@ def report_core_company():
                 msg = '\n'.join(infos)
                 print(msg)
                 fo = open("./data/goodcompany.txt", "w+")
-                line = fo.write(stocklist)
+                line = fo.write(stocklist[-1])
                 print(line)
                 fo.close()
             else:
