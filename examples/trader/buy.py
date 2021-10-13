@@ -8,7 +8,8 @@ import pandas as pd
 import talib as ta
 import datetime
 import time
-
+from jqdatasdk import *
+auth('19159862375', 'Yjbir=1977')
 
 # macd指标
 def get_macd_data(data, short=0, long1=0, mid=0):
@@ -53,17 +54,18 @@ if __name__ == '__main__':
     print("筛选股票开始时间：", start_time)
 
     #大盘日线判断 日MACD 高于 昨日
-    # kline = Stock1dHfqKdata.query_data(provider='joinquant', code='000300', return_type='df',
-    #                                    start_timestamp=str(end_date), end_timestamp=str(start_date))
-
-
+    szdf = get_price('000001.XSHG', start_date=str(end_date), end_date=str(start_date), frequency='1d')
+    szclose = szdf['close'].values.tolist()
+    print(szdf)
+    if szclose[-1]<szclose[-2]:
+        print('大盘不好，放弃买票')
+        sys.exit()
 
     for item in stocks_list:        # 遍历所有股票代码
         name = str(item).replace(".", "")  # 将股票的代码处理成我们需要的格式
         # 获取k线
         kline = Stock1dHfqKdata.query_data(provider='joinquant', code=item, return_type='df',
                                            start_timestamp=str(end_date), end_timestamp=str(start_date))
-        #print(kline)
         if len(kline) < 60:             # 容错处理，因为有些新股可能k线数据太短无法计算指标
             continue
         ma5 = ta.MA(pd.Series(kline['close']), timeperiod=5, matype=0).tolist()        # 计算ma5和ma60
@@ -71,9 +73,7 @@ if __name__ == '__main__':
         # 剔除60日线向下的。
         if ma60[-1]<ma60[-2] and ma60[-2]<ma60[-3]:
             continue
-        #RSI<20
         rsi = ta.RSI(pd.Series(kline['close']),timeperiod=6).tolist()
-        #print(str(rsi[-1]))
         #BIAS3 < 10
         kline['bias_24'] = (pd.Series(kline['close']) - pd.Series(kline['close']).rolling(24, min_periods=1).mean()) / pd.Series(kline['close']).rolling(24,min_periods=1).mean() * 100
         #print(kline['bias_24'])
@@ -85,26 +85,21 @@ if __name__ == '__main__':
                                              columns=['id','code','name','timestamp','close'],index='timestamp',
                                              start_timestamp=str(yue_date), end_timestamp=str(start_date))#.values
         #macd=get_macd_data(dfmon,12,26,9)
-        print(dfmon)
         # 将价格数据转化成float类型
         dfmon['index'] = dfmon['timestamp'].rank(ascending=1, method='first')
-        print(dfmon)
-        close = [float(x) for x in dfmon['close']]
-        macdDIFF, macdDEA, macd = ta.MACDEXT(dfmon, fastperiod=12, fastmatype=1, slowperiod=26, slowmatype=1,
+        #close = [float(x) for x in dfmon['close']]
+        DIFF, DEA, macd = ta.MACDEXT(kline['close'], fastperiod=12, fastmatype=1, slowperiod=26, slowmatype=1,
                                              signalperiod=9, signalmatype=1)
-        macd = macd * 2
-        print(macd)
-        #print(str(dtime[0])+'  dif  '+str(dif[0])+'  dea  '+str(dea[0])+'  macd  '+str(macd[0]))
-        #print(macd)
-        last = len(macd)
+        mDIFF, mDEA, mmacd = ta.MACDEXT(dfmon['close'], fastperiod=12, fastmatype=1, slowperiod=26, slowmatype=1,
+                                             signalperiod=9, signalmatype=1)
+        macd = macd.values.tolist()
+        mmacd = mmacd.values.tolist()
         #print(last)
-        if last>1:
-            macdmacd = macd['data_macd'][last-1]
-            #print(macdmacd)
-            #月MACD>0 且 月MACD增加 双均线交叉
-            if macdmacd >0 and macdmacd > macd['data_macd'][last-2] and ma5[-1] > ma60[-1] and ma5[-2] <= ma60[-1]:
+        if len(mmacd)>1:
+            #月MACD>0 且 月MACD增加 双均线交叉 and ma5[-2] <= ma60[-1]
+            if macd[-1] > 0 and macd[-2] < 0 and mmacd[-1] > mmacd[-2] and ma5[-1] > ma60[-1]:
                 stocks_pool.append(name)
-
+    print('待购买股票：')
     print(list(set(stocks_pool)))
     end_time = datetime.datetime.now()    # 获取本地时间
     print("筛选股票结束时间：", end_time)
