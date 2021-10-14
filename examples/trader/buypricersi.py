@@ -8,6 +8,7 @@ import pandas as pd
 import talib as ta
 import datetime
 import time
+import sys
 from jqdatasdk import *
 auth('19159862375', 'Yjbir=1977')
 
@@ -29,7 +30,7 @@ def get_macd_data(data, short=0, long1=0, mid=0):
     return data[['timestamp', 'data_dif', 'data_dea', 'data_macd']]
 
 
-#当天收盘后和第二天有区别
+#当天收盘后执行
 if __name__ == '__main__':
     stocks_pool = []                    # 空的股票池，将筛选出来的股票加入这个股票池中
     #获取当天和30天前的日期
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())    # 获取本地时间
     print("筛选股票开始时间：", start_time)
 
-    #大盘日线判断 日MACD 高于 昨日
+
     szdf = get_price('000001.XSHG', start_date=str(end_date), end_date=str(start_date), frequency='1d')
     szclose = szdf['close'].values.tolist()
     print(szdf)
@@ -82,8 +83,7 @@ if __name__ == '__main__':
         #rsip3 = ta.RSI(pd.Series(klinep['close']),timeperiod=24).tolist()
 
         close = kline['close'].values.tolist()
-            #月MACD>0 且 月MACD增加 双均线交叉 and ma5[-2] <= ma60[-1]
-        if close[-2] > ma60[-2] and rsi3[-2]>50 and rsi3[-3]<50:
+        if close[-1] > ma60[-1] and rsi3[-1]>50 and rsi3[-2]<50:
              stocks_pool.append(name)
     print('待购买股票：')
     print(list(set(stocks_pool)))
