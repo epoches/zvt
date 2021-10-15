@@ -11,23 +11,6 @@ import time
 from jqdatasdk import *
 auth('19159862375', 'Yjbir=1977')
 
-# macd指标
-def get_macd_data(data, short=0, long1=0, mid=0):
-    if short == 0:
-        short = 12
-    if long1 == 0:
-        long1 = 26
-    if mid == 0:
-        mid = 9
-    data['sema'] = pd.Series(data['close']).ewm(span=short).mean()
-    data['lema'] = pd.Series(data['close']).ewm(span=long1).mean()
-    data.fillna(0, inplace=True)
-    data['data_dif'] = data['sema'] - data['lema']
-    data['data_dea'] = pd.Series(data['data_dif']).ewm(span=mid).mean()
-    data['data_macd'] = 2 * (data['data_dif'] - data['data_dea'])
-    data.fillna(0, inplace=True)
-    return data[['timestamp', 'data_dif', 'data_dea', 'data_macd']]
-
 
 #当天收盘后和第二天有区别
 if __name__ == '__main__':
@@ -63,27 +46,21 @@ if __name__ == '__main__':
     for item in stocks_list:        # 遍历所有股票代码
         name = str(item).replace(".", "")  # 将股票的代码处理成我们需要的格式
         # 获取k线
+        Stock1dHfqKdata.record_data(provider='joinquant', code=item)
         kline = Stock1dHfqKdata.query_data(provider='joinquant', code=item, return_type='df',
                                            start_timestamp=str(end_date), end_timestamp=str(start_date))
-        delta = datetime.timedelta(days=-2)
-        n_days = now + delta
-        p_date = n_days.strftime('%Y-%m-%d')
-        Stock1dHfqKdata.record_data(provider='joinquant', code=item)
-        klinep = Stock1dHfqKdata.query_data(provider='joinquant', code=item, return_type='df',
-                                           start_timestamp=str(end_date), end_timestamp=p_date)
         if len(kline) < 60:             # 容错处理，因为有些新股可能k线数据太短无法计算指标
             continue
-        #ma5 = ta.MA(pd.Series(kline['close']), timeperiod=5, matype=0).tolist()        # 计算ma5和ma60
         ma60 = ta.MA(pd.Series(kline['close']), timeperiod=60, matype=0).tolist()
         # 剔除60日线向下的。
         if ma60[-1]<ma60[-2] and ma60[-2]<ma60[-3]:
             continue
         rsi3 = ta.RSI(pd.Series(kline['close']),timeperiod=24).tolist()
-        #rsip3 = ta.RSI(pd.Series(klinep['close']),timeperiod=24).tolist()
+
 
         close = kline['close'].values.tolist()
             #月MACD>0 且 月MACD增加 双均线交叉 and ma5[-2] <= ma60[-1]
-        if close[-2] > ma60[-2] and rsi3[-2]>50 and rsi3[-3]<50:
+        if close[-1] > ma60[-1] and rsi3[-1]>50 and rsi3[-2]<50:
              stocks_pool.append(name)
     print('待购买股票：')
     print(list(set(stocks_pool)))
