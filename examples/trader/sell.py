@@ -39,7 +39,7 @@ if __name__ == '__main__':
         # 获取k线
         Stock1dHfqKdata.record_data(provider='joinquant', code=item)
         kline = Stock1dHfqKdata.query_data(provider='joinquant', code=item, return_type='df',
-                                          start_timestamp=str(end_date), end_timestamp=str(now+delta1))
+                                          start_timestamp=str(end_date), end_timestamp=str(now))
         #print(kline)
         if len(kline) < 60:             # 容错处理，因为有些新股可能k线数据太短无法计算指标
             continue
