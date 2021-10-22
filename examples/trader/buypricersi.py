@@ -59,7 +59,7 @@ if __name__ == '__main__':
     print(szdf)
     if szclose[-1]<szclose[-2]:
         print('大盘不好，放弃买票')
-        sys.exit()
+        #sys.exit()
 
     for item in stocks_list:        # 遍历所有股票代码
         name = str(item).replace(".", "")  # 将股票的代码处理成我们需要的格式

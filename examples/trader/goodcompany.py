@@ -59,7 +59,7 @@ def report_core_company():
                 msg = '\n'.join(infos)
                 print(msg)
                 fo = open("./data/goodcompany.txt", "w+")
-                line = fo.write(stocklist[-1])
+                line = fo.write(stocklist[:-1])
                 print(line)
                 fo.close()
             else:
