@@ -43,11 +43,15 @@ if __name__ == '__main__':
         #print(kline)
         if len(kline) < 60:             # 容错处理，因为有些新股可能k线数据太短无法计算指标
             continue
-        rsi1 = ta.RSI(pd.Series(kline['close']), timeperiod=6).tolist()
-        rsi2 = ta.RSI(pd.Series(kline['close']), timeperiod=12).tolist()
-        rsi3 = ta.RSI(pd.Series(kline['close']), timeperiod=24).tolist()
-        print('股票代码'+name+'.rsi1[-1]'+str(rsi1[-1])+'.rsi1[-2]'+str(rsi1[-2])+'.rsi2[-1]'+str(rsi2[-1])+'.rsi2[-2]'+str(rsi2[-2])+'.rsi1[-1]'+str(rsi3[-1])+'.rsi3[-2]'+str(rsi3[-2]))
-        if rsi1[-1]<rsi1[-2] and rsi2[-1]<rsi2[-2] and rsi3[-1]<rsi3[-2]:
+        ma10 = ta.MA(pd.Series(kline['close']), timeperiod=10, matype=0).tolist()
+        DIFF, DEA, macd = ta.MACDEXT(kline['close'], fastperiod=12, fastmatype=1, slowperiod=26, slowmatype=1,
+                                     signalperiod=9, signalmatype=1)
+        macd = macd.values.tolist()
+        dif = DIFF.values.tolist()
+        dea = DEA.values.tolist()
+        close = kline['close'].values.tolist()
+        #print('股票代码'+name+'.rsi1[-1]'+str(rsi1[-1])+'.rsi1[-2]'+str(rsi1[-2])+'.rsi2[-1]'+str(rsi2[-1])+'.rsi2[-2]'+str(rsi2[-2])+'.rsi1[-1]'+str(rsi3[-1])+'.rsi3[-2]'+str(rsi3[-2]))
+        if close[-1]<ma10[-1] or macd[-1]<macd[-2] or (dif[-1]<0 and dea[-1]<0 and dif[-1]<dea[-1]):
             stocks_pool.append(name)
     print('待卖出股票')
     print(list(set(stocks_pool)))
