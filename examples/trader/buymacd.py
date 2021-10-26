@@ -17,6 +17,10 @@ if __name__ == '__main__':
     stocks_pool = []                    # 空的股票池，将筛选出来的股票加入这个股票池中
     #获取当天和30天前的日期
     now = datetime.datetime.now()
+    d_time = datetime.datetime.strptime(str(datetime.datetime.now().date()) + '9:30', '%Y-%m-%d%H:%M')
+    if now<d_time:
+        now = datetime.datetime.now() - datetime.timedelta(days=1)
+    print(now)
     delta = datetime.timedelta(days=240)
     n_days = now - delta
     start_date = now.strftime('%Y-%m-%d')
@@ -49,6 +53,7 @@ if __name__ == '__main__':
         Stock1dHfqKdata.record_data(provider='joinquant', code=item)
         kline = Stock1dHfqKdata.query_data(provider='joinquant', code=item, return_type='df',
                                            start_timestamp=str(end_date), end_timestamp=str(start_date))
+        #print(kline[-1:])
         if len(kline) < 60:             # 容错处理，因为有些新股可能k线数据太短无法计算指标
             continue
         ma5 = ta.MA(pd.Series(kline['close']), timeperiod=5, matype=0).tolist()
@@ -60,7 +65,7 @@ if __name__ == '__main__':
         rsi3 = ta.RSI(pd.Series(kline['close']),timeperiod=24).tolist()
         kline['bias_24'] = (pd.Series(kline['close']) - pd.Series(kline['close']).rolling(24,min_periods=1).mean()) / pd.Series(
             kline['close']).rolling(24, min_periods=1).mean() * 100
-        print(kline['bias_24'])
+        #print(kline['bias_24'])
         delta = datetime.timedelta(days=1200)
         n_days = now - delta
         yue_date = n_days.strftime('%Y-%m-%d')

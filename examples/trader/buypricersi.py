@@ -17,6 +17,10 @@ if __name__ == '__main__':
     stocks_pool = []                    # 空的股票池，将筛选出来的股票加入这个股票池中
     #获取当天和30天前的日期
     now = datetime.datetime.now()
+    d_time = datetime.datetime.strptime(str(datetime.datetime.now().date()) + '9:30', '%Y-%m-%d%H:%M')
+    if now < d_time:
+        now = datetime.datetime.now() - datetime.timedelta(days=1)
+    print(now)
     delta = datetime.timedelta(days=240)
     n_days = now - delta
     start_date = now.strftime('%Y-%m-%d')
