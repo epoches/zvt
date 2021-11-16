@@ -37,9 +37,12 @@ if __name__ == '__main__':
 
     #大盘日线判断 日MACD 高于 昨日
     szdf = get_price('000001.XSHG', start_date=str(end_date), end_date=str(start_date), frequency='1d')
-    szclose = szdf['close'].values.tolist()
-    print(szdf)
-    if szclose[-1]<szclose[-2]:
+    szDIFF, szDEA, szmacd = ta.MACDEXT(szdf['close'], fastperiod=12, fastmatype=1, slowperiod=26, slowmatype=1,
+                                 signalperiod=9, signalmatype=1)
+
+    #szclose = szdf['close'].values.tolist()
+    print(szmacd)
+    if szmacd[-1]<szmacd[-2]:
         print('大盘不好，放弃买票')
         #sys.exit()
 
