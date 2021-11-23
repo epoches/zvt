@@ -55,7 +55,8 @@ class GoodCompanyFactor(FinanceBaseFactor, FilterFactor):
                                   FinanceFactor.op_net_cash_flow_per_op_income >= 0.1,
                                   FinanceFactor.sales_net_cash_flow_per_op_income >= 0.3,
                                   FinanceFactor.current_ratio >= 1,
-                                  FinanceFactor.debt_asset_ratio <= 0.5),
+                                  FinanceFactor.debt_asset_ratio <= 0.5
+                                  ),
                  order: object = None,
                  limit: int = None,
                  level: Union[str, IntervalLevel] = IntervalLevel.LEVEL_1DAY,

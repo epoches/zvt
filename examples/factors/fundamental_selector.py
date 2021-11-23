@@ -20,7 +20,7 @@ class FundamentalSelector(TargetSelector):
                                         BalanceSheet.accounts_receivable <= 0.3 * BalanceSheet.total_current_assets],
                                     start_timestamp=start_timestamp, end_timestamp=end_timestamp, provider='eastmoney',
                                     col_period_threshold=None)
-        self.filter_factors.append(factor2)
+        # self.filter_factors.append(factor2)
 
 
 if __name__ == '__main__':

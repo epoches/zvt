@@ -28,7 +28,7 @@ if __name__ == '__main__':
     end_date = n_days.strftime('%Y-%m-%d')
     print(end_date)
     #  获取选到的好股票的信息
-    f = open(r"./data/goodcompany.txt", 'r')
+    f = open(r"./stocklistmacd", 'r')
     s = f.read()
     f.close()
     stocks_list = s.split(',')
