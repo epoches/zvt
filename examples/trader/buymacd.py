@@ -49,7 +49,7 @@ if __name__ == '__main__':
     print(szmacd)
     if szmacd[-1]<szmacd[-2]:
         print('大盘不好，放弃买票')
-        sys.exit()
+        #sys.exit()
 
     for item in stocks_list:        # 遍历所有股票代码
         name = str(item).replace(".", "")  # 将股票的代码处理成我们需要的格式
@@ -70,6 +70,7 @@ if __name__ == '__main__':
         kline['bias_24'] = (pd.Series(kline['close']) - pd.Series(kline['close']).rolling(24,min_periods=1).mean()) / pd.Series(
             kline['close']).rolling(24, min_periods=1).mean() * 100
         #print(kline['bias_24'])
+        bias24= kline['bias_24'].tolist()
         delta = datetime.timedelta(days=1200)
         n_days = now - delta
         yue_date = n_days.strftime('%Y-%m-%d')
@@ -88,7 +89,16 @@ if __name__ == '__main__':
 
         close = kline['close'].values.tolist()
             #月MACD>0 且 月MACD增加 双均线交叉 and ma5[-2] <= ma60[-1]
-        if macd[-2]<macd[-1] and mmacd[-1]>0 and mmacd[-2]<mmacd[-1] and  close[-1] > ma5[-1] and  close[-1] > ma60[-1] and rsi1[-1]<20 and kline['bias_24']<10 :
+        print(macd[-2])
+        print(macd[-1])
+        print(mmacd[-2])
+        print(mmacd[-1])
+        print(close[-1])
+        print(ma5[-1])
+        print(ma60[-1])
+        print(rsi1[-1])
+        print(bias24[-1])
+        if macd[-2]<macd[-1] and mmacd[-1]>0 and mmacd[-2]<mmacd[-1] and  close[-1] > ma5[-1] and  close[-1] > ma60[-1] and rsi1[-1]<20 and bias24[-1]<10 :
              stocks_pool.append(name)
     print('待购买股票：')
     print(list(set(stocks_pool)))
