@@ -20,6 +20,12 @@ class JqChinaStockValuationRecorder(TimeSeriesDataRecorder):
 
     data_schema = StockValuation
 
+    def init_entities(self):
+        super().init_entities()
+        # 过滤掉退市的
+        self.entities = [entity for entity in self.entities if
+                         (entity.end_date is None) or (entity.end_date > now_pd_timestamp())]
+
     def record(self, entity, start, end, size, timestamps):
         start = max(start, to_pd_timestamp('2005-01-01'))
         end = min(now_pd_timestamp(), start + Timedelta(days=500))

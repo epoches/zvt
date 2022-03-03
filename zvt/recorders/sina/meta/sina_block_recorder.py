@@ -92,6 +92,7 @@ class SinaChinaBlockStockRecorder(TimeSeriesDataRecorder):
                     })
                 if the_list:
                     df = pd.DataFrame.from_records(the_list)
+                    print(df)
                     df_to_db(data_schema=self.data_schema, df=df, provider=self.provider,
                              force_update=True)
 
@@ -104,7 +105,7 @@ class SinaChinaBlockStockRecorder(TimeSeriesDataRecorder):
 
 if __name__ == '__main__':
     # init_log('sina_china_stock_category.log')
-
+    Block.record_data(provider='sina')
     recorder = SinaChinaBlockStockRecorder(codes=['new_cbzz'])
     recorder.run()
 # the __all__ is generated
